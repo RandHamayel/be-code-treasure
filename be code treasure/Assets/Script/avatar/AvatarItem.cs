@@ -21,7 +21,7 @@ public class AvatarItem : MonoBehaviour
 
         nameText.text = data.name;
         SetSelected(isSelected);
-        
+
         // Load images
         StartCoroutine(LoadImage(data.character_image, avatarImage));
         StartCoroutine(LoadImage(data.treasure_image, treasureImage));

@@ -29,7 +29,7 @@ public class AvatarPicker : MonoBehaviour
                 bool isSelected = (selectedAvatarId != null && avatar.id == selectedAvatarId);
                 item.Setup(avatar, this, isSelected);
                 items.Add(item);
-                
+
                 if (isSelected)
                 {
                     selectedItem = item;

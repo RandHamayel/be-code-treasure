@@ -211,9 +211,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1102184bcf3cda14e83d62099087739e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nameText: {fileID: 5414229380004284031}
-  characterImage: {fileID: 0}
+  avatarImage: {fileID: 4631717333502216508}
   treasureImage: {fileID: 5697350113598373473}
+  nameText: {fileID: 5414229380004284031}
+  selectionBorder: {fileID: 0}
 --- !u!1 &3430777037548671631
 GameObject:
   m_ObjectHideFlags: 0

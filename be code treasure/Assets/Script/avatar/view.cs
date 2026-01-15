@@ -7,6 +7,7 @@ public class AvatarView : MonoBehaviour
 {
     public AvatarService avatarService;
     public FileService fileService;
+    public AvatarLister avatarLister;
     [Header("List Settings")]
     public Transform container; // Drag 'Content' of ScrollView here
     public GameObject avatarItemPrefab; // Drag 'AvatarItem' Prefab here
@@ -22,6 +23,17 @@ public class AvatarView : MonoBehaviour
 
     private void Start()
     {
+        // Configure avatar lister with our UI elements
+        if (avatarLister != null)
+        {
+            avatarLister.contentParent = container;
+            avatarLister.avatarItemPrefab = avatarItemPrefab;
+            if (avatarLister.avatarService == null)
+            {
+                avatarLister.avatarService = avatarService;
+            }
+        }
+
         // Requirement: Avatar list shown immediately
         RefreshList();
     }
@@ -48,16 +60,14 @@ public class AvatarView : MonoBehaviour
 
     public void RefreshList()
     {
-
-        // Calling the service with your 3 specific parameters
-       avatarService.ListAvatars(
-        (avatarArray) => {
-            Debug.Log($"SUCCESS! Received {avatarArray.Length} avatars.");
-            },
-            (error) => Debug.LogError(error)
-        );
-
-
+        if (avatarLister != null)
+        {
+            avatarLister.LoadAvatars();
+        }
+        else
+        {
+            Debug.LogError("AvatarLister not assigned to AvatarView!");
+        }
     }
 
     public void OnCreateAvatarClicked()

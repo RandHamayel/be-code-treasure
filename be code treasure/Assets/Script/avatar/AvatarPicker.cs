@@ -8,11 +8,12 @@ using System;
 public class AvatarPicker : MonoBehaviour
 {
     public AvatarService avatarService;
-    public AuthView authView;
     public Transform contentParent;
     public GameObject avatarItemPrefab;
 
     private List<AvatarItem> items = new();
+    private AvatarItem selectedItem;
+    private string selectedAvatarId;
 
     public void LoadAvatars()
     {
@@ -25,10 +26,14 @@ public class AvatarPicker : MonoBehaviour
                 var go = Instantiate(avatarItemPrefab, contentParent);
                 var item = go.GetComponent<AvatarItem>();
 
-                item.Setup(avatar, this);
+                bool isSelected = (selectedAvatarId != null && avatar.id == selectedAvatarId);
+                item.Setup(avatar, this, isSelected);
                 items.Add(item);
-
-                StartCoroutine(LoadImage(avatar.character_image, item.GetImage()));
+                
+                if (isSelected)
+                {
+                    selectedItem = item;
+                }
             }
         },
         (err) => Debug.LogError(err));
@@ -36,11 +41,23 @@ public class AvatarPicker : MonoBehaviour
 
     public void SelectAvatar(AvatarItem selectedItem, AvatarData avatar)
     {
-        foreach (var item in items)
-            item.SetSelected(false);
+        // Clear previous selection
+        if (this.selectedItem != null)
+        {
+            this.selectedItem.SetSelected(false);
+        }
 
-        selectedItem.SetSelected(true);
-        authView.selectedAvatarId = avatar.id;
+        // Set new selection
+        this.selectedItem = selectedItem;
+        this.selectedItem.SetSelected(true);
+        selectedAvatarId = avatar.id;
+
+        Debug.Log("Selected avatar: " + avatar.name + " (ID: " + avatar.id + ")");
+    }
+
+    public string GetSelectedAvatarId()
+    {
+        return selectedAvatarId;
     }
 
     private void Clear()
@@ -49,54 +66,7 @@ public class AvatarPicker : MonoBehaviour
             Destroy(child.gameObject);
 
         items.Clear();
+        selectedItem = null;
+        selectedAvatarId = null;
     }
-
-  private IEnumerator LoadImage(string rawPath, Image targetImage)
-{
-    string finalUrl = rawPath;
-
-    // Case 1: URL-encoded full URL inside a path
-    if (rawPath.Contains("http%3A") || rawPath.Contains("https%3A"))
-    {
-        int index = rawPath.IndexOf("http");
-        string encodedUrl = rawPath.Substring(index);
-
-        finalUrl = Uri.UnescapeDataString(encodedUrl);
-    }
-    // Case 2: Proper absolute URL
-    else if (Uri.IsWellFormedUriString(rawPath, UriKind.Absolute))
-    {
-        finalUrl = rawPath;
-    }
-    // Case 3: Relative path
-    else
-    {
-        finalUrl = AppConstants.API_BASE_URL.TrimEnd('/') + "/" + rawPath.TrimStart('/');
-    }
-
-    Debug.Log("FINAL image URL: " + finalUrl);
-
-    using (UnityWebRequest req = UnityWebRequestTexture.GetTexture(finalUrl))
-    {
-        yield return req.SendWebRequest();
-
-        if (req.result != UnityWebRequest.Result.Success)
-        {
-            Debug.LogError("Image load failed: " + finalUrl);
-            yield break;
-        }
-
-        Texture2D tex = DownloadHandlerTexture.GetContent(req);
-
-        Sprite sprite = Sprite.Create(
-            tex,
-            new Rect(0, 0, tex.width, tex.height),
-            new Vector2(0.5f, 0.5f)
-        );
-
-        targetImage.sprite = sprite;
-    }
-}
-
-
 }

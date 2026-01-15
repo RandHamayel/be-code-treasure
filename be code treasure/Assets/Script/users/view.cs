@@ -65,11 +65,24 @@ public class UserView : MonoBehaviour
     {
         // Matches the AvatarService signature we fixed earlier
         avatarService.ListAvatars( (avatars) => {
+            if (avatars == null) {
+                Debug.LogError("Avatars array is null");
+                return;
+            }
+
+            if (avatarDropdown == null) {
+                Debug.LogError("Avatar dropdown is null");
+                return;
+            }
+
             availableAvatars = new List<AvatarData>(avatars);
             avatarDropdown.ClearOptions();
 
             List<string> options = new List<string>();
-            foreach (var av in avatars) options.Add(av.name);
+            foreach (var av in avatars) {
+                string displayName = (av != null && !string.IsNullOrEmpty(av.name)) ? av.name : "Unnamed Avatar";
+                options.Add(displayName);
+            }
             avatarDropdown.AddOptions(options);
         }, (err) => Debug.LogError("Dropdown Error: " + err));
     }

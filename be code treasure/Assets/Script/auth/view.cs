@@ -7,7 +7,7 @@ public class AuthView : MonoBehaviour
 
 {
     [Header("Service")]
-     public AvatarPicker avatarPicker;
+    public AvatarPicker avatarPicker;
     public AuthService authService;
 
     [Header("Panels")]
@@ -22,9 +22,6 @@ public class AuthView : MonoBehaviour
     public TMP_InputField registerNameInput;
     public TMP_InputField registerEmailInput;
     public TMP_InputField registerPasswordInput;
-
-     [Header("Register Avatar")]
-    public string selectedAvatarId; // set by AvatarItem click
 
     /* ===================== COMMON ===================== */
     public TextMeshProUGUI errorText;
@@ -48,7 +45,10 @@ public class AuthView : MonoBehaviour
     {
         loginPanel.SetActive(false);
         registerPanel.SetActive(true);
-        avatarPicker.LoadAvatars();
+        if (avatarPicker != null)
+        {
+            avatarPicker.LoadAvatars();
+        }
         errorText.text = "";
     }
 
@@ -99,32 +99,26 @@ public class AuthView : MonoBehaviour
 
     public void OnRegisterClicked() {
 
-         if (string.IsNullOrEmpty(selectedAvatarId))
-    {
-        errorText.text = "Please select an avatar";
-        return;
-    }
+        string selectedAvatarId = avatarPicker?.GetSelectedAvatarId();
 
-    var req = new RegisterRequest(
-        registerNameInput.text,
-        registerEmailInput.text,
-        registerPasswordInput.text,
-        selectedAvatarId
-    );
+        if (string.IsNullOrEmpty(selectedAvatarId))
+        {
+            errorText.text = "Please select an avatar";
+            return;
+        }
 
-     authService.Register(
-        req,
-        () => ShowLogin(),
-        OnAuthError
-     );
-    }
-      /* ===================== AVATAR SELECTION ===================== */
+        var req = new RegisterRequest(
+            registerNameInput.text,
+            registerEmailInput.text,
+            registerPasswordInput.text,
+            selectedAvatarId
+        );
 
-    // Called from AvatarItem when clicked
-    public void OnAvatarSelected(string avatarId)
-    {
-        selectedAvatarId = avatarId;
-        Debug.Log("Selected avatar id: " + avatarId);
+        authService.Register(
+            req,
+            () => ShowLogin(),
+            OnAuthError
+        );
     }
 
     /* ===================== ERROR ===================== */
